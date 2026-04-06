@@ -1,4 +1,25 @@
+"use client";
+
+import { useFinance } from "@/lib/finance-context";
+
 export function PortfolioMarketInsights() {
+    const { portfolio, monthlyData } = useFinance();
+
+    const lastMonth = monthlyData[monthlyData.length - 1];
+    const previousMonth = monthlyData[monthlyData.length - 2];
+    const monthlyChange = lastMonth?.balance - previousMonth?.balance || 0;
+    const changePercentage =
+        previousMonth && previousMonth.balance > 0
+            ? ((monthlyChange / previousMonth.balance) * 100).toFixed(1)
+            : "0";
+
+    const riskLevel =
+        portfolio?.assets.some((a) => a.allocation > 50) || false
+            ? "High"
+            : portfolio?.assets.some((a) => a.allocation > 25) || false
+              ? "Moderate"
+              : "Low";
+
     return (
         <div className="grid grid-cols-2 gap-8">
             <div className="bg-surface-container-low p-6 rounded-lg relative overflow-hidden group">
@@ -8,15 +29,22 @@ export function PortfolioMarketInsights() {
                 </h4>
                 <div className="flex items-baseline gap-2 mb-2">
                     <span className="text-3xl font-headline font-bold text-on-surface">
-                        +$42,103
+                        {monthlyChange >= 0 ? "+" : ""}$
+                        {Math.abs(monthlyChange).toLocaleString()}
                     </span>
-                    <span className="text-primary text-xs font-bold">
-                        +2.1%
+                    <span
+                        className={`text-xs font-bold ${
+                            monthlyChange >= 0
+                                ? "text-emerald-600 dark:text-emerald-400"
+                                : "text-tertiary"
+                        }`}
+                    >
+                        {monthlyChange >= 0 ? "+" : ""}
+                        {changePercentage}%
                     </span>
                 </div>
                 <p className="text-sm text-outline leading-relaxed">
-                    Adjusted for dividend reinvestments across the primary tech
-                    portfolio.
+                    Performance adjusted for all allocations and reinvestments.
                 </p>
             </div>
             <div className="bg-surface-container-low p-6 rounded-lg relative overflow-hidden group">
@@ -26,12 +54,24 @@ export function PortfolioMarketInsights() {
                 </h4>
                 <div className="flex items-baseline gap-2 mb-2">
                     <span className="text-3xl font-headline font-bold text-on-surface">
-                        Moderate
+                        {riskLevel}
                     </span>
-                    <div className="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(255,185,94,0.5)]"></div>
+                    <div
+                        className={`w-2 h-2 rounded-full ${
+                            riskLevel === "High"
+                                ? "bg-tertiary shadow-[0_0_8px_rgba(255,185,94,0.5)]"
+                                : riskLevel === "Moderate"
+                                  ? "bg-amber-500 shadow-[0_0_8px_rgba(217,119,6,0.5)]"
+                                  : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                        }`}
+                    ></div>
                 </div>
                 <p className="text-sm text-outline leading-relaxed">
-                    Concentration in high-growth SaaS remains above target threshold.
+                    {riskLevel === "High"
+                        ? "Consider rebalancing for better diversification."
+                        : riskLevel === "Moderate"
+                          ? "Exposure is within acceptable risk parameters."
+                          : "Risk profile is well-distributed and healthy."}
                 </p>
             </div>
         </div>

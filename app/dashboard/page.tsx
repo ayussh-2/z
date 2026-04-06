@@ -4,6 +4,7 @@ import { DashboardHero } from "@/components/dashboard/hero-section";
 import { DashboardMetricsGrid } from "@/components/dashboard/metrics-grid";
 import { PortfolioSummary } from "@/components/dashboard/portfolio-summary";
 import { DashboardCriticalAlerts } from "@/components/dashboard/critical-alerts";
+import { DashboardFilters } from "@/components/dashboard/filters";
 
 export default function DashboardPage() {
     return (
@@ -23,6 +24,7 @@ export default function DashboardPage() {
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
+                <DashboardFilters />
                 <TransactionsTable />
             </div>
         </div>

@@ -1,28 +1,46 @@
-import { AlertCircle, AlertTriangle, ArrowRight, ArrowDownLeft, ArrowRightLeft } from "lucide-react";
+"use client";
+
+import {
+    AlertCircle,
+    AlertTriangle,
+    ArrowRight,
+    ArrowDownLeft,
+    ArrowRightLeft,
+} from "lucide-react";
+import { useFinance } from "@/lib/finance-context";
 
 export function PortfolioAlertsSidebar() {
+    const { insights, transactions } = useFinance();
+
+    // Get recent transactions
+    const recentTransactions = transactions.slice(0, 3);
+
+    // Get warning alerts
+    const warningInsights = insights.filter((i) => i.type === "alert");
+    const hasPortfolioWarning = warningInsights.length > 0;
+
     return (
         <div className="space-y-8">
-            <div className="bg-destructive/10 border border-destructive/30 p-6 rounded-lg relative">
-                <div className="flex items-start gap-4">
-                    <div className="p-2 bg-destructive/20 rounded-lg">
-                        <AlertCircle className="w-6 h-6 text-destructive" />
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-destructive text-sm mb-1">
-                            Portfolio Margin Warning
-                        </h4>
-                        <p className="text-xs text-on-surface-variant leading-relaxed mb-4">
-                            Margin utilization has exceeded 85% of total
-                            collateral value due to market volatility in
-                            sector indices.
-                        </p>
-                        <button className="w-full py-2 bg-destructive text-destructive-foreground text-[10px] font-black uppercase tracking-widest rounded-lg transition-transform active:scale-95">
-                            Rebalance Now
-                        </button>
+            {hasPortfolioWarning && (
+                <div className="bg-destructive/10 border border-destructive/30 p-6 rounded-lg relative">
+                    <div className="flex items-start gap-4">
+                        <div className="p-2 bg-destructive/20 rounded-lg">
+                            <AlertCircle className="w-6 h-6 text-destructive" />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-destructive text-sm mb-1">
+                                {warningInsights[0]?.title}
+                            </h4>
+                            <p className="text-xs text-on-surface-variant leading-relaxed mb-4">
+                                {warningInsights[0]?.description}
+                            </p>
+                            <button className="w-full py-2 bg-destructive text-destructive-foreground text-[10px] font-black uppercase tracking-widest rounded-lg transition-transform active:scale-95">
+                                Take Action
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             <div className="bg-tertiary/10 border border-tertiary/30 p-6 rounded-lg">
                 <div className="flex items-start gap-4">
@@ -31,18 +49,19 @@ export function PortfolioAlertsSidebar() {
                     </div>
                     <div>
                         <h4 className="font-bold text-tertiary text-sm mb-1">
-                            Asset Expiry Reminder
+                            Recommendation
                         </h4>
                         <p className="text-xs text-on-surface-variant leading-relaxed">
-                            T-Bill Series 4022-B matures in 72 hours.
-                            Automatic rollover is currently disabled.
+                            {insights.find((i) => i.type !== "alert")
+                                ?.description ||
+                                "Keep monitoring your portfolio performance."}
                         </p>
                         <div className="mt-4 flex gap-3">
-                            <span className="text-[10px] font-bold text-tertiary border-b border-tertiary/30 cursor-pointer">
-                                MODIFY AUTO-PAY
+                            <span className="text-[10px] font-bold text-tertiary border-b border-tertiary/30 cursor-pointer hover:opacity-80">
+                                LEARN MORE
                             </span>
-                            <span className="text-[10px] font-bold text-tertiary border-b border-tertiary/30 cursor-pointer">
-                                LIQUIDATE
+                            <span className="text-[10px] font-bold text-tertiary border-b border-tertiary/30 cursor-pointer hover:opacity-80">
+                                DISMISS
                             </span>
                         </div>
                     </div>
@@ -51,30 +70,29 @@ export function PortfolioAlertsSidebar() {
 
             <div className="glass-overlay p-6 rounded-lg border border-outline-variant/10">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full border-2 border-primary/30 p-0.5">
-                        <img
-                            className="w-full h-full object-cover rounded-full"
-                            alt="portrait of female investment advisor"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7LGdpejZeCc5gpGmIIKRDnnLBM7hvRgpW56wpuTdTmDp2ZKunFR8JTwLk0NXhwX9xq8id-uxCY_uCpULKMvBdN_hhcyXLbFGgbuvMMG_AJSko1xs0m_mbR3ZDYBaN3V2bKnBDlZwBnSg_U5foQDz__z2oZ8lxtj3eWhZb7f0IQfVaypnVqrYdIjRlozRBfS6hZBAAmKW1AAhUfuZqIw_3OT1rSjwuy975TpiO9ELFEwVnBOsaflyYYsudJCbKlAAjphPNKpMdxL0"
-                        />
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="text-sm font-bold text-primary">
+                            AI
+                        </span>
                     </div>
                     <div>
                         <p className="text-xs font-bold text-on-surface">
-                            Elena Vance
+                            Financial Insights
                         </p>
                         <p className="text-[10px] text-primary font-bold">
-                            EXECUTIVE ADVISOR
+                            LATEST ANALYSIS
                         </p>
                     </div>
                 </div>
                 <blockquote className="text-xs italic text-on-surface-variant leading-relaxed mb-4">
-                    "The current delta in your Venture holdings suggests a
-                    shift toward liquidity might be prudent before the
-                    upcoming Q3 earnings cycle."
+                    "
+                    {insights[0]?.description ||
+                        "Monitor your portfolio performance regularly for optimal results."}
+                    "
                 </blockquote>
                 <button className="flex items-center gap-2 text-primary hover:gap-3 transition-all cursor-pointer">
                     <span className="text-[10px] font-black tracking-widest uppercase">
-                        Schedule Review
+                        View Details
                     </span>
                     <ArrowRight className="w-4 h-4" />
                 </button>
@@ -82,31 +100,43 @@ export function PortfolioAlertsSidebar() {
 
             <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-outline uppercase tracking-widest px-1">
-                    Recent Activity
+                    Recent Transactions
                 </h4>
                 <div className="space-y-1">
-                    <div className="flex justify-between items-center p-3 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer group">
-                        <div className="flex items-center gap-3">
-                            <ArrowDownLeft className="text-outline w-5 h-5 group-hover:text-primary transition-colors" />
-                            <span className="text-xs font-medium text-on-surface">
-                                Dividend: AAPL
-                            </span>
-                        </div>
-                        <span className="text-xs font-bold text-primary">
-                            +$1,240.00
-                        </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer group">
-                        <div className="flex items-center gap-3">
-                            <ArrowRightLeft className="text-outline w-5 h-5 group-hover:text-primary transition-colors" />
-                            <span className="text-xs font-medium text-on-surface">
-                                Trade: BTC/USD
-                            </span>
-                        </div>
-                        <span className="text-xs font-bold text-on-surface">
-                            -$12,000.00
-                        </span>
-                    </div>
+                    {recentTransactions.length > 0 ? (
+                        recentTransactions.map((tx) => (
+                            <div
+                                key={tx.id}
+                                className="flex justify-between items-center p-3 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    {tx.type === "Income" ? (
+                                        <ArrowDownLeft className="text-outline w-5 h-5 group-hover:text-primary transition-colors" />
+                                    ) : (
+                                        <ArrowRightLeft className="text-outline w-5 h-5 group-hover:text-primary transition-colors" />
+                                    )}
+                                    <span className="text-xs font-medium text-on-surface">
+                                        {tx.category}:{" "}
+                                        {tx.description.slice(0, 20)}
+                                    </span>
+                                </div>
+                                <span
+                                    className={`text-xs font-bold ${
+                                        tx.type === "Income"
+                                            ? "text-emerald-600 dark:text-emerald-400"
+                                            : "text-on-surface"
+                                    }`}
+                                >
+                                    {tx.type === "Income" ? "+" : "-"}$
+                                    {tx.amount.toLocaleString()}
+                                </span>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-xs text-on-surface-variant">
+                            No recent transactions
+                        </p>
+                    )}
                 </div>
             </div>
         </div>

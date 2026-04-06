@@ -1,4 +1,31 @@
+"use client";
+
+import { useFinance } from "@/lib/finance-context";
+
 export function PortfolioSummary() {
+    const { monthlyData, portfolio } = useFinance();
+
+    // Calculate the highest balance for scaling
+    const maxBalance = Math.max(...monthlyData.map((m) => m.balance));
+    const minBalance = Math.min(...monthlyData.map((m) => m.balance));
+    const range = maxBalance - minBalance || 1;
+
+    // Create SVG path for the chart
+    const pathData = monthlyData
+        .map((point, index) => {
+            const x = (index / (monthlyData.length - 1)) * 800;
+            const normalizedY = (maxBalance - point.balance) / range;
+            const y = normalizedY * 200;
+            return `${x},${y}`;
+        })
+        .join(" ");
+
+    // Get top 3 assets
+    const topAssets = portfolio?.assets.slice(0, 3) || [];
+    const equitiesAllocation = portfolio?.assets.find(
+        (a) => a.class === "Equities",
+    );
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 bg-surface-container-lowest p-8 rounded-lg h-[450px] flex flex-col">
@@ -32,12 +59,12 @@ export function PortfolioSummary() {
                             preserveAspectRatio="none"
                             viewBox="0 0 800 200"
                         >
-                            <path
-                                d="M0,150 C100,140 200,180 300,120 C400,60 500,100 600,40 C700,20 800,50 800,50"
+                            <polyline
+                                points={pathData}
                                 fill="none"
                                 stroke="currentColor"
                                 className="text-primary stroke-2"
-                            ></path>
+                            />
                         </svg>
                     </div>
                     <div className="absolute bottom-[-24px] left-0 right-0 flex justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-2">
@@ -60,13 +87,12 @@ export function PortfolioSummary() {
                         <div
                             className="absolute inset-[-12px] rounded-full border-[12px] border-primary"
                             style={{
-                                clipPath:
-                                    "polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%)",
+                                clipPath: `polygon(50% 50%, 50% 0%, ${50 + (equitiesAllocation?.allocation || 45) * 0.5}% 0%, ${50 + (equitiesAllocation?.allocation || 45) * 0.5}% 100%, 50% 100%)`,
                             }}
                         ></div>
                         <div className="flex flex-col items-center">
                             <span className="text-3xl font-black font-headline tracking-tighter">
-                                72%
+                                {equitiesAllocation?.allocation || 45}%
                             </span>
                             <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">
                                 Equities
@@ -75,33 +101,30 @@ export function PortfolioSummary() {
                     </div>
                 </div>
                 <div className="space-y-4 mt-8">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-primary"></span>
-                            <span className="text-sm font-medium">
-                                Equities
+                    {topAssets.map((asset, index) => (
+                        <div
+                            key={asset.id}
+                            className="flex items-center justify-between"
+                        >
+                            <div className="flex items-center gap-3">
+                                <span
+                                    className={`w-2 h-2 rounded-full ${
+                                        index === 0
+                                            ? "bg-primary"
+                                            : index === 1
+                                              ? "bg-primary-container"
+                                              : "bg-outline-variant"
+                                    }`}
+                                ></span>
+                                <span className="text-sm font-medium">
+                                    {asset.name}
+                                </span>
+                            </div>
+                            <span className="text-sm font-bold">
+                                ${asset.value.toLocaleString()}
                             </span>
                         </div>
-                        <span className="text-sm font-bold">$63,900</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-primary-container"></span>
-                            <span className="text-sm font-medium">
-                                Fixed Income
-                            </span>
-                        </div>
-                        <span className="text-sm font-bold">$12,450</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-outline-variant"></span>
-                            <span className="text-sm font-medium">
-                                Cash Reserves
-                            </span>
-                        </div>
-                        <span className="text-sm font-bold">$12,400</span>
-                    </div>
+                    ))}
                 </div>
             </div>
         </div>

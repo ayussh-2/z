@@ -1,7 +1,20 @@
+"use client";
+
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFinance } from "@/lib/finance-context";
 
 export function DashboardHero() {
+    const { portfolio } = useFinance();
+
+    const performancePercentage = portfolio?.performancePercentage || 0;
+    const status =
+        performancePercentage > 5
+            ? "performing excellently"
+            : performancePercentage > 0
+              ? "performing well"
+              : "needs attention";
+
     return (
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
@@ -11,9 +24,9 @@ export function DashboardHero() {
                 <p className="text-on-surface-variant max-w-md">
                     Your wealth has increased by{" "}
                     <span className="text-primary font-semibold">
-                        +4.2%
+                        +{performancePercentage}%
                     </span>{" "}
-                    this month. Assets are performing within optimal risk
+                    this month. Assets are {status} within optimal risk
                     parameters.
                 </p>
             </div>

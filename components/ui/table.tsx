@@ -35,11 +35,7 @@ const TableBody = React.forwardRef<
     HTMLTableSectionElement,
     React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-    <tbody
-        ref={ref}
-        className={cn("divide-y divide-white", className)}
-        {...props}
-    />
+    <tbody ref={ref} className={cn("divide-y ", className)} {...props} />
 ));
 TableBody.displayName = "TableBody";
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { inter, manrope } from "@/fonts";
 import { ThemeProvider } from "@/components/theme-provider";
+import { FinanceProvider } from "@/lib/finance-context";
 
 export const metadata: Metadata = {
     title: "Wealth Link",
@@ -26,7 +27,7 @@ export default function RootLayout({
                     enableColorScheme={false}
                     disableTransitionOnChange
                 >
-                    {children}
+                    <FinanceProvider>{children}</FinanceProvider>
                 </ThemeProvider>
             </body>
         </html>
